@@ -12,10 +12,21 @@ sudo make uninstall
 ```
 
 ## How-to-Use
+Help: 
+```bash
+csv-viewer --help
+-h, --help
+-v, --view (column, table, json)
+```
+
 ### Column view
 Column view will display the content in a clean easy way to see the content:  
 ```bash
 csv-viewer ./test/test.csv
+```
+or
+```bash
+csv-viewer --view column ./test/test.csv
 ```
 
 Result: 
@@ -26,9 +37,19 @@ BBB      Another description, with a newline like this         More text
 
 > The spacing is similar to `column` gives you.
 
+### Table view
+```bash
+csv-viewer --view table ./test/test.csv
+```
+
+Result:
+```
+
+```
+
 ### JSON view
 ```bash
-csv-viewer --json ./test/test.csv
+csv-viewer --view json ./test/test.csv
 ```
 
 Result:
@@ -45,16 +66,6 @@ Result:
         "More text"
     ]
 ]
-```
-
-### Table view
-```bash
-csv-viewer --table ./test/test.csv
-```
-
-Result:
-```
-
 ```
 
 ### Selecting columns to display
