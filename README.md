@@ -17,6 +17,7 @@ Help:
 csv-viewer --help
 -h, --help
 -v, --view (column, table, json)
+-c, --columns
 ```
 
 ### Column view
@@ -70,7 +71,7 @@ Result:
 
 ### Selecting columns to display
 ```bash
-csv-viewer --columns="$1,$3" ./test/test.csv
+csv-viewer --columns="1,3" ./test/test.csv
 ```
 
 Result:
@@ -79,4 +80,19 @@ AAA    More text
 BBB    More text
 ```
 
+Or you can change the position of display of the columns: 
+```bash
+csv-viewer --columns="3,1" ./test/test.csv
+```
+
+Result:
+```
+More text    AAA
+More text    BBB
+```
+
 > This does not affect the usage on view options.
+
+### What about other manipulations?
+This tool is for the terminal environment and tries to follow the UNIX philosophy. 
+So all this to say if you want to do other types of manipulations you will need to pipe it into other terminal utilities like `grep`, `head`, `tail`, `awk`, `sed`, etc.
