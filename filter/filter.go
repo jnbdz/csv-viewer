@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Column
+// Columns
 func Columns(data [][]string, columns string) ([][]string, error) {
 	selectedIndexes := strings.Split(columns, ",")
 	var result [][]string

@@ -5,7 +5,9 @@ import (
 	"github.com/jnbdz/csv-viewer/extract"
 	"github.com/jnbdz/csv-viewer/filter"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 	"log"
+	"os"
 )
 
 func main() {
@@ -16,17 +18,36 @@ func main() {
 		Use:   "csv-viewer [filePath]",
 		Short: "Display CSV content in various formats",
 		Long:  `Display CSV content in various formats: column, table, json.`,
-		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			filePath := args[0]
+			var csvData [][]string
+			var err error
 
-			csvData, err := extract.CSVFile(filePath)
+			// Check if stdin is a terminal or if it's receiving piped data
+			if len(args) == 0 && term.IsTerminal(int(os.Stdin.Fd())) {
+				// Stdin is a terminal and no arguments were provided, display help
+				err := cmd.Help()
+				if err != nil {
+					log.Fatalf("Error: %v\n", err)
+				}
+				return
+			}
+
+			// If no file path is provided, read from stdin
+			if len(args) == 0 {
+				csvData, err = extract.CSVStdin(os.Stdin)
+			} else {
+				// File path is provided
+				filePath := args[0]
+				csvData, err = extract.CSVFile(filePath)
+			}
+
 			if err != nil {
-				log.Fatalf("Error reading CSV file: %v\n", err)
+				log.Fatalf("Error: %v\n", err)
 			}
 
 			if columns != "" {
-				if csvData, err = filter.Columns(csvData, columns); err != nil {
+				csvData, err = filter.Columns(csvData, columns)
+				if err != nil {
 					log.Fatalf("Could not filter CSV content: %v", err)
 				}
 			}
@@ -49,8 +70,7 @@ func main() {
 	rootCmd.Flags().StringVarP(&viewMode, "view", "v", "column", "View mode: column, table, json")
 	rootCmd.Flags().StringVarP(&columns, "columns", "c", "", "Select columns to display (e.g., --columns=\"1,3\")")
 
-	err := rootCmd.Execute()
-	if err != nil {
-		log.Fatalf("There seems to be : %v", err)
+	if err := rootCmd.Execute(); err != nil {
+		log.Fatalf("Error: %v", err)
 	}
 }

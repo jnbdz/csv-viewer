@@ -1,6 +1,9 @@
 // Package display contains all the different ways you can view a CSV content.
 //
-// - Column Is the
+// There are three view types:
+// - Column
+// - JSON
+// - Table
 package display
 
 import (
@@ -10,7 +13,7 @@ import (
 	"os"
 )
 
-// Table
+// Table view displays the content in a table format
 func Table(csvData [][]string) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader(csvData[0])
@@ -19,7 +22,7 @@ func Table(csvData [][]string) {
 	table.Render()
 }
 
-// JSON
+// JSON view outputs the content in JSON format
 func JSON(csvData [][]string) error {
 	jsonData, err := json.MarshalIndent(csvData, "", "    ")
 	if err != nil {
