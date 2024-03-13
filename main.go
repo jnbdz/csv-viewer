@@ -12,43 +12,6 @@ import (
 	"strings"
 )
 
-/*func main() {
-	var rootCmd = &cobra.Command{Use: "csv-viewer"}
-	rootCmd.AddCommand(viewCmd)
-	rootCmd.Execute()
-}
-
-var viewCmd = &cobra.Command{
-	Use:   "view [--view viewMode] [--columns colIndexes] filePath",
-	Short: "Display CSV content in various formats",
-	Long:  `Display CSV content in various formats: column, table, json.`,
-	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		filePath := args[0]
-		viewMode, _ := cmd.Flags().GetString("view")
-		columns, _ := cmd.Flags().GetString("columns")
-
-		csvData, err := readCSV(filePath)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error reading CSV file: %v\n", err)
-			os.Exit(1)
-		}
-
-		if columns != "" {
-			csvData = filterColumns(csvData, columns)
-		}
-
-		switch viewMode {
-		case "table":
-			displayTable(csvData)
-		case "json":
-			displayJSON(csvData)
-		default:
-			displayColumn(csvData)
-		}
-	},
-}*/
-
 func main() {
 	var viewMode string
 	var columns string
@@ -85,36 +48,23 @@ func main() {
 	rootCmd.Flags().StringVarP(&viewMode, "view", "v", "column", "View mode: column, table, json")
 	rootCmd.Flags().StringVarP(&columns, "columns", "c", "", "Select columns to display (e.g., --columns=\"1,3\")")
 
-	rootCmd.Execute()
+	err := rootCmd.Execute()
+	if err != nil {
+		return
+	}
 }
-
-/*func init() {
-	viewCmd.Flags().StringP("view", "v", "column", "View mode: column, table, json")
-	viewCmd.Flags().StringP("columns", "c", "", "Select columns to display (e.g., --columns=\"1,3\")")
-}*/
-
-/*func readCSV(filePath string) ([][]string, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	reader := csv.NewReader(file)
-	records, err := reader.ReadAll()
-	if err != nil {
-		return nil, err
-	}
-
-	return records, nil
-}*/
 
 func readCSV(filePath string) ([][]string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	reader := csv.NewReader(file)
 	var records [][]string
@@ -160,11 +110,6 @@ func filterColumns(data [][]string, columns string) [][]string {
 }
 
 func displayTable(csvData [][]string) {
-	/*table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader(csvData[0])
-	table.AppendBulk(csvData[1:]) // Append data excluding header
-	table.SetAutoFormatHeaders(false)
-	table.Render()*/
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader(csvData[0])
 	table.SetAutoFormatHeaders(false) // Keep headers as they are
