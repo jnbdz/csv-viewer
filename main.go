@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func main() {
+/*func main() {
 	var rootCmd = &cobra.Command{Use: "csv-viewer"}
 	rootCmd.AddCommand(viewCmd)
 	rootCmd.Execute()
@@ -47,12 +47,51 @@ var viewCmd = &cobra.Command{
 			displayColumn(csvData)
 		}
 	},
+}*/
+
+func main() {
+	var viewMode string
+	var columns string
+
+	var rootCmd = &cobra.Command{
+		Use:   "csv-viewer [filePath]",
+		Short: "Display CSV content in various formats",
+		Long:  `Display CSV content in various formats: column, table, json.`,
+		Args:  cobra.MinimumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			filePath := args[0]
+
+			csvData, err := readCSV(filePath)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading CSV file: %v\n", err)
+				os.Exit(1)
+			}
+
+			if columns != "" {
+				csvData = filterColumns(csvData, columns)
+			}
+
+			switch viewMode {
+			case "table":
+				displayTable(csvData)
+			case "json":
+				displayJSON(csvData)
+			default:
+				displayColumn(csvData)
+			}
+		},
+	}
+
+	rootCmd.Flags().StringVarP(&viewMode, "view", "v", "column", "View mode: column, table, json")
+	rootCmd.Flags().StringVarP(&columns, "columns", "c", "", "Select columns to display (e.g., --columns=\"1,3\")")
+
+	rootCmd.Execute()
 }
 
-func init() {
+/*func init() {
 	viewCmd.Flags().StringP("view", "v", "column", "View mode: column, table, json")
 	viewCmd.Flags().StringP("columns", "c", "", "Select columns to display (e.g., --columns=\"1,3\")")
-}
+}*/
 
 /*func readCSV(filePath string) ([][]string, error) {
 	file, err := os.Open(filePath)
