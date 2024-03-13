@@ -14,10 +14,15 @@ sudo make uninstall
 ## How-to-Use
 Help: 
 ```bash
-csv-viewer --help
--h, --help
--v, --view (column, table, json)
--c, --columns
+Display CSV content in various formats: column, table, json.
+
+Usage:
+  csv-viewer [filePath] [flags]
+
+Flags:
+  -c, --columns string   Select columns to display (e.g., --columns="1,3")
+  -h, --help             help for csv-viewer
+  -v, --view string      View mode: column, table, json (default "column")
 ```
 
 ### Column view
@@ -45,7 +50,13 @@ csv-viewer --view table ./test/test.csv
 
 Result:
 ```
-
++-----+--------------------------------+-----------+
+| AAA | Description with a comma, and  | More text |
+|     |      a quote "like this"       |           |
++-----+--------------------------------+-----------+
+| BBB | Another description, with a    | More text |
+|     | newline like this              |           |
++-----+--------------------------------+-----------+
 ```
 
 ### JSON view

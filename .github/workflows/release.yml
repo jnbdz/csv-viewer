@@ -1,0 +1,65 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    outputs:
+      app_name: ${{ steps.extract_repo_name.outputs.app_name }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Extract repository name
+        id: extract_repo_name
+        run: echo "::set-output name=app_name::$(echo ${GITHUB_REPOSITORY##*/})"
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.22' # Adjust as needed
+
+      - name: Build for Linux
+        run: |
+          GOOS=linux GOARCH=amd64 go build -o ${{ steps.extract_repo_name.outputs.app_name }}-linux-amd64
+          tar czvf ${{ steps.extract_repo_name.outputs.app_name }}-linux-amd64.tar.gz ${{ steps.extract_repo_name.outputs.app_name }}-linux-amd64
+
+      - name: Build for Windows
+        run: |
+          GOOS=windows GOARCH=amd64 go build -o ${{ steps.extract_repo_name.outputs.app_name }}-windows-amd64.exe
+          tar czvf ${{ steps.extract_repo_name.outputs.app_name }}-windows-amd64.tar.gz ${{ steps.extract_repo_name.outputs.app_name }}-windows-amd64.exe
+
+      - name: Build for macOS
+        run: |
+          GOOS=darwin GOARCH=amd64 go build -o ${{ steps.extract_repo_name.outputs.app_name }}-darwin-amd64
+          tar czvf ${{ steps.extract_repo_name.outputs.app_name }}-darwin-amd64.tar.gz ${{ steps.extract_repo_name.outputs.app_name }}-darwin-amd64
+
+      - name: Generate Checksums
+        run: sha256sum *.tar.gz > SHA256-checksums.txt
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.extract_repo_name.outputs.app_name }}-linux-amd64.tar.gz
+          asset_name: ${{ steps.extract_repo_name.outputs.app_name }}-linux-amd64.tar.gz
+          asset_content_type: application/gzip
+        # Repeat for each artifact
