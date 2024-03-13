@@ -1,4 +1,4 @@
-module csv-viewer
+module github.com/jnbdz/csv-viewer
 
 go 1.22
 
